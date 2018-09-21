@@ -82,3 +82,96 @@ vue练习demo
 		//发起jsonp请求
 		this.$http.jsonp(url,[options]).then(successCallback,errorCallback);
 	}
+
+
+
+
+1.全局配置根域名 则，在每次单独发起HTTP请求时，请求URL路径，应该以相对路径开头，前面不能带/，否则不会启用根路径做拼接
+	Vue.http.options.root = 'http://vue.studyit.io/'
+2.全局配置emulateJSON选项
+	Vue.http.options.emulateJSON = true
+3.使用过渡类名实现动画
+	使用transition元素，把需要被动画控制的元素包裹起来
+	transition元素，是vue官方提供的
+	使用duration="毫秒值" 来统一设置入场和离场时的动画时长
+	在实现列表过渡时，如果需要过渡的元素，是通过v-for循环渲染出来的，不能使用transition包裹，需要使用transitionGroup
+	如果腰围v-for循环创建的元素设置动画，必须为每一个元素设置:key属性
+	给transition-group添加appear属性，实现页面刚展示出来时，入场的效果
+	通过为transition-group元素，设置tag属性，指定transition-group渲染为指定的元素，如不指定，默认渲染为span标签
+	<transition-group appear tag="ul">
+		<li v-for="(item,i) in list" :key="item.id" @click="del(i)">
+			{{item.id}} --- {{item.name}}
+		</li>
+	</transition-group>
+	.v-move和.v-leave-active配合使用，能够实现列表后续元素渐渐飘上来的效果
+	v-enter：还没有进入
+	v-leave-to:已经离开
+	v-enter-active:入场动画的时间段
+	v-leave-active:离场动画的时间段
+	<style>
+		.v-enter,
+		.v-leave-to{
+			opacity:0;
+		}
+		.v-enter-active,
+		.v-leave-active{
+			transition:all 0.4s ease;
+		}
+		.v-move{
+			transition:all 0.6s ease;
+		}
+		.v-leave-active{
+			position:absolute;
+		}
+	</style>
+	<transition enter-active-class="bounceIn" leave-active-class="bounceOut" :duration="{ enter:200, leave:400 }">
+		<h3 v-if="flag">这是一个H3</h3>
+	</transition>
+4.模块化：从代码逻辑的角度划分的；方便代码分层开发，保证每个功能模块的职能单一
+组件化：从UI界面的角度划分的；前端的组件化，方便UI组件的重用
+5.如果要使用组价，直接把组件的名称，以HTML标签的形式，引入到页面中即可
+<my-com1></my-com1>
+5.1 使用Vue.extend来创建全局的Vue组件
+var com1 = Vue.extend({
+	template:'<h3>Vue.extend创建的组件</h3>' //通过Template属性，指定了组件要展示的HTML结构
+})
+5.2 使用Vue.component('组件名称',创建出来的组件模板对象)
+如果使用Vue.component定义全局组件时，组件名称使用驼峰命名，则在引用组件时，需要把大写的驼峰改为小写字母同时加-连接
+如果不使用驼峰命名，则直接引用
+Vue.component('myCom1',com1)
+6.Vue.component('mycom1',Vue.extend({
+	template:'<h3>...</h3>'
+}))
+7.Vue.component('mycom1',Vue.extend({
+	template:'#tem1'
+}))
+在被控制的#app外面，使用template元素，定义组件的HTML模板结构
+<template id="tem1">
+	<div>
+		<h3>...</h3>
+	</div>
+</template>
+8.定义局部组件
+组件的data必须为方法，方法内部必须返回一个对象，保证不同实例互不影响
+	components:{
+		login:{
+			template:'<h3>...</h3>'
+			data:function(){
+				return {}
+			}
+		}
+	}
+9.组件切换
+	9.1 if-else
+	<a href="" @click.prevent="flag=true">登录</a>
+	<a href="" @click.prevent="flag=false">注册</a>
+	<login v-if="flag"></login>
+	<register v-else="flag"></register>
+	9.2 Vue提供了component来展示对应名称的组件
+	component是一个占位符，:is属性，可以用来指定要展示的组件的名称
+	<component :is="'login'"></component>
+	9.3 组件切换-应用切换动画和mode方式
+	通过mode属性，设置组件切换时的模式
+	<transition>
+		<component :is="'login'"></component>
+	</transition>
